@@ -8,13 +8,23 @@ from __future__ import absolute_import, print_function, unicode_literals
 import os
 
 # Salt Libs
+import salt.utils.versions
 from salt.exceptions import CommandExecutionError
+
+import tornado
 
 # Salttesting libs
 from tests.support.case import ModuleCase
 from tests.support.unit import skipIf
 
 
+TORNADO_50 = (
+    salt.utils.versions.LooseVersion(tornado.version) >=
+    salt.utils.versions.LooseVersion('5.0')
+)
+
+
+@skipIf(TORNADO_50, "We need to make this work with tornado 5.0")
 class BeaconsAddDeleteTest(ModuleCase):
     '''
     Tests the add and delete functions
@@ -53,6 +63,7 @@ class BeaconsAddDeleteTest(ModuleCase):
         self.run_function('beacons.save')
 
 
+@skipIf(TORNADO_50, "We need to make this work with tornado 5.0")
 class BeaconsTest(ModuleCase):
     '''
     Tests the beacons execution module

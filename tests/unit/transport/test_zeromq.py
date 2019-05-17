@@ -23,6 +23,7 @@ import zmq.eventloop.ioloop
 # support pyzmq 13.0.x, TODO: remove once we force people to 14.0.x
 if not hasattr(zmq.eventloop.ioloop, 'ZMQIOLoop'):
     zmq.eventloop.ioloop.ZMQIOLoop = zmq.eventloop.ioloop.IOLoop
+import tornado
 from tornado.testing import AsyncTestCase
 import tornado.gen
 
@@ -32,6 +33,7 @@ import salt.log.setup
 from salt.ext import six
 import salt.utils.process
 import salt.utils.platform
+import salt.utils.versions
 import salt.transport.server
 import salt.transport.client
 import salt.exceptions
@@ -50,6 +52,10 @@ ON_SUSE = False
 if 'SuSE' in linux_distribution(full_distribution_name=False):
     ON_SUSE = True
 
+TORNADO_50 = (
+    salt.utils.versions.LooseVersion(tornado.version) >=
+    salt.utils.versions.LooseVersion('5.0')
+)
 
 class BaseZMQReqCase(TestCase, AdaptedConfigurationTestCaseMixin):
     '''
@@ -158,6 +164,7 @@ class ClearReqTestCases(BaseZMQReqCase, ReqChannelMixin):
 
 
 @flaky
+@skipIf(TORNADO_50, "We need to make this work with tornado 5.0")
 @skipIf(ON_SUSE, 'Skipping until https://github.com/saltstack/salt/issues/32902 gets fixed')
 class AESReqTestCases(BaseZMQReqCase, ReqChannelMixin):
     def setUp(self):
